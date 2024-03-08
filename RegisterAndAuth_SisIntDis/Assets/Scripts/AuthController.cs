@@ -177,10 +177,12 @@ public class AuthController : MonoBehaviour
     {
         StartCoroutine("GetScore");
         LeaderboardMenu.SetActive(true);
+        StartMenu.SetActive(false);
     }
     public void LeaderBoardLeave_OnClick()
     {
         LeaderboardMenu.SetActive(false);
+        StartMenu.SetActive(true);
     }
     IEnumerator SetScoreToUser(string json)
     {
