@@ -4,10 +4,10 @@ using UnityEngine;
 using TMPro;
 public class UserInfo : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI _text;
-    public AuthController AuthController { get; private set; }
-    public void SetUserInfo(AuthController userInfo)
-    {
-        AuthController = userInfo;
-    }
+    [SerializeField] private Transform _content;
+    [SerializeField] private Listing _listing;
+    
+    private List<Listing> _listings = new List<Listing>();
+    
+    
 }

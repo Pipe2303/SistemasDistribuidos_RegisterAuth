@@ -45,7 +45,6 @@ public class Highscore : MonoBehaviour
         else
         {
             highscoreText.text = amount.ToString();
-
         }
     }
 }

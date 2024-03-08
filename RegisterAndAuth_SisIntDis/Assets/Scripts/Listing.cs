@@ -1,18 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Listing : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public TextMeshProUGUI TextUsername;
+    public TextMeshProUGUI TextScore;
 
-    // Update is called once per frame
-    void Update()
+    public void SetItem(UsuarioJson usuario, int pos) 
     {
-        
+        TextUsername.text = usuario.username;
+        TextScore.text = "" + usuario.data.score;
     }
 }

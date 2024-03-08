@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine.UI;
 
 public class AuthController : MonoBehaviour
 {
@@ -12,7 +13,9 @@ public class AuthController : MonoBehaviour
 
     [SerializeField] private GameObject StartMenu;
     [SerializeField] private GameObject UserMenu;
-    
+    [SerializeField] private GameObject LeaderboardMenu;
+    UsuarioJson[] usuarios = new UsuarioJson[10];
+    [SerializeField] private Transform[] usersText = new Transform[7];
 
     // Start is called before the first frame update
     void Start()
@@ -159,9 +162,8 @@ public class AuthController : MonoBehaviour
                     Debug.Log(JsonUtility.ToJson(user));
                     StartCoroutine("SetScoreToUser", JsonUtility.ToJson(user));
                 }
-                /*UsuarioJson[] usuarios = new UsuarioJson[10];
-                UsuarioJson[] usuariosOrganizados =
-                    usuarios.OrderByDescending(user => user.data.score).Take(7).ToArray();*/
+                
+                
             }
             else
             {
@@ -171,6 +173,15 @@ public class AuthController : MonoBehaviour
         }
     }
 
+    public void LeaderBoard_OnClick()
+    {
+        StartCoroutine("GetScore");
+        LeaderboardMenu.SetActive(true);
+    }
+    public void LeaderBoardLeave_OnClick()
+    {
+        LeaderboardMenu.SetActive(false);
+    }
     IEnumerator SetScoreToUser(string json)
     {
         UnityWebRequest request = UnityWebRequest.Put(url + "/api/usuarios", json);
@@ -200,30 +211,74 @@ public class AuthController : MonoBehaviour
         }
     }
 
+    public void ShowLeaderBoard(UsuarioJson[] usuarios)
+    {
+        for (int i = 0; i < usuarios.Length; i++)
+        {
+            usersText[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = usuarios[i].username + ":";
+            usersText[i].transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = usuarios[i].data.score + ":";
+        }
+    }
+    IEnumerator GetScore()
+    {
+        UnityWebRequest request = UnityWebRequest.Get(url + "/api/usuarios");
+        request.SetRequestHeader("x-token", Token);
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.ConnectionError)
+        {
+            Debug.Log(request.error);
+        }
+        else
+        {
+            Debug.Log(request.downloadHandler.text);
+            if (request.responseCode == 200)
+            {
+                UsersList users = JsonUtility.FromJson<UsersList>(request.downloadHandler.text);
+                Debug.Log("El largo de el array es: " + users.usuarios.Length);
+
+                var usuariosOrganizados = users.usuarios.OrderByDescending(u => u.data.score).Take(7).ToArray();
+                ShowLeaderBoard(usuariosOrganizados);
+            }
+            else
+            {
+                //Debug.Log(request.responseCode + "|" + request.error);
+                Debug.Log("Usuario no autenticado");
+            }
+        }
+    }
+
 /*public void SetScoreUser(PlayerPrefs score)
 {
 
 }*/
-    [System.Serializable]
-    public class AuthenticationData
-    {
-        public string username;
-        public string password;
-        public UsuarioJson usuario;
-        public string token;
-    }
+    
+}
+[System.Serializable]
+public class AuthenticationData
+{
+    public string username;
+    public string password;
+    public UsuarioJson usuario;
+    public string token;
+}
 
-    [System.Serializable]
-    public class UsuarioJson
-    {
-        public string _id;
-        public string username;
-        public DataUser data;
-    }
+[System.Serializable]
+public class UsuarioJson
+{
+    public string _id;
+    public string username;
+    public DataUser data;
+    public UsuarioJson[] usuarios;
+}
 
-    [System.Serializable]
-    public class DataUser
-    {
-        public int score;
-    }
+[System.Serializable]
+public class UsersList
+{
+    public UsuarioJson[] usuarios;
+}
+[System.Serializable]
+public class DataUser
+{
+    public int score;
 }
